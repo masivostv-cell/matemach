@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Super Math Bros: Edición YouTuber</title>
+    <title>Super Math Bros: PNG Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         :root { --sky: #5c94fc; --ground: #c84c0c; }
@@ -24,12 +24,13 @@
         .setup-box { background: rgba(0,0,0,0.6); padding: 15px; border-radius: 15px; border: 3px solid white; margin: 10px; max-width: 90%; }
         input[type="number"] { padding: 10px; font-family: 'Press Start 2P'; font-size: 1rem; width: 60px; text-align: center; margin: 10px; border: 3px solid white; background: black; color: yellow; }
         
-        .color-picker { display: flex; gap: 10px; justify-content: center; margin: 10px 0; }
-        .c-btn { width: 30px; height: 30px; border: 2px solid white; cursor: pointer; }
-        
         button { background: #ffce00; border: 4px solid #fff; padding: 15px 25px; font-family: 'Press Start 2P'; font-size: 0.9rem; cursor: pointer; box-shadow: 0 5px 0 #b38f00; color: #d32f2f; margin-top: 15px; }
         button:active { transform: translateY(3px); box-shadow: none; }
         button:disabled { background: #555; color: #888; box-shadow: none; cursor: wait; }
+        
+        /* Botón YouTube */
+        .yt-btn { background: #FF0000; color: white; border: 4px solid white; padding: 15px; text-decoration: none; display: inline-block; margin: 10px; border-radius: 10px; font-size: 0.8rem; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%{transform:scale(1);} 50%{transform:scale(1.05);} 100%{transform:scale(1);} }
 
         /* JUEGO */
         #game-container { display: none; width: 100%; height: 100vh; background-color: var(--sky); overflow: hidden; position: relative; }
@@ -37,12 +38,26 @@
         
         .ground { position: absolute; bottom: 0; width: 100%; height: 15vh; background: #c84c0c; border-top: 4px solid #000; z-index: 10; }
         
-        /* PERSONAJES */
-        #hero-visual { width: 80px; height: 80px; position: absolute; bottom: 15vh; left: 15%; z-index: 20; transition: bottom 0.3s; }
+        /* --- PERSONAJES (Cargan .PNG TRANSPARENTE) --- */
+        #hero-visual { 
+            width: 120px; height: 120px; 
+            position: absolute; bottom: 15vh; left: 15%; z-index: 20; 
+            transition: bottom 0.3s; 
+            /* AQUÍ BUSCA EL PNG */
+            background-image: url('heroe.png');
+            background-size: contain; background-repeat: no-repeat; background-position: center; 
+        }
         .hero-run { animation: run 0.3s infinite alternate; }
         @keyframes run { from{transform:translateY(0);} to{transform:translateY(-5px);} }
         
-        #enemy { position: absolute; bottom: 15vh; right: -100px; width: 60px; height: 60px; z-index: 19; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23388E3C' d='M2 6h12v6H2z'/%3E%3Cpath fill='%23FFCC80' d='M11 2h4v5h-4z'/%3E%3Cpath fill='%23333' d='M13 3h1v1h-1z'/%3E%3C/svg%3E"); background-size: contain; background-repeat: no-repeat; transition: right 1.5s linear; }
+        #enemy { 
+            position: absolute; bottom: 15vh; right: -100px; 
+            width: 100px; height: 100px; z-index: 19; 
+            transition: right 1.5s linear; 
+            /* AQUÍ BUSCA EL PNG */
+            background-image: url('villano.png');
+            background-size: contain; background-repeat: no-repeat; background-position: center;
+        }
 
         /* MATH BOX */
         #question-zone { position: absolute; top: 15%; width: 100%; display: flex; flex-direction: column; align-items: center; opacity: 0; transition: opacity 0.3s; z-index: 30; }
@@ -51,46 +66,42 @@
         .block { width: 60px; height: 60px; background: #ffce00; border: 3px solid black; display: flex; justify-content: center; align-items: center; font-size: 1rem; color: black; cursor: pointer; animation: bounce 2s infinite; }
         @keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-5px);} }
 
-        /* YOUTUBE */
-        .video-wrapper { width: 90%; max-width: 500px; height: 250px; background: #000; border: 3px solid white; margin: 15px auto; }
-        iframe { width: 100%; height: 100%; }
-
         /* FX */
         .jump { animation: jump 0.6s ease-in-out; }
-        @keyframes jump { 0%{bottom:15vh} 50%{bottom:45vh} 100%{bottom:15vh} }
+        @keyframes jump { 0%{bottom:15vh} 50%{bottom:55vh} 100%{bottom:15vh} }
         .stomp { animation: stomp 0.2s forwards; }
         @keyframes stomp { to{transform:scaleY(0.1); opacity:0;} }
         .shake { animation: shake 0.5s; filter: hue-rotate(-50deg) saturate(500%); }
         @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
 
+        /* VISTAS PREVIAS EN EL MENÚ */
+        .preview-box {
+            width: 80px; height: 80px; margin: 0 auto;
+            background-size: contain; background-repeat: no-repeat; background-position: center;
+            border: 2px solid white; background-color: rgba(255,255,255,0.1);
+        }
     </style>
 </head>
 <body>
 
     <div id="start-screen" class="screen flex-col active">
-        <h1>SUPER MATH<br>YOUTUBER</h1>
-        
+        <h1>SUPER MATH<br>BROS</h1>
         <div class="setup-box">
-            <div style="font-size:0.7rem; margin-bottom:5px">1. ELIGE COLOR</div>
-            <svg id="preview-hero" width="60" height="60" viewBox="0 0 16 16" style="margin:5px auto; display:block;">
-                <path id="p-hat" fill="#D32F2F" d="M3 0h11v4H3z"/>
-                <path fill="#FFCC80" d="M2 3h10v5H2z"/>
-                <path id="p-shirt" fill="#D32F2F" d="M1 8h14v8H1z"/>
-                <path fill="#1976D2" d="M4 8h2v8H4zM10 8h2v8h-2zM0 6h4v3H0zM12 6h4v3h-4z"/>
-            </svg>
-            <div class="color-picker">
-                <div class="c-btn" style="background:#D32F2F" onclick="setColor('#D32F2F')"></div>
-                <div class="c-btn" style="background:#2E7D32" onclick="setColor('#2E7D32')"></div>
-                <div class="c-btn" style="background:#1565C0" onclick="setColor('#1565C0')"></div>
-                <div class="c-btn" style="background:#FBC02D" onclick="setColor('#FBC02D')"></div>
+            <div style="display:flex; justify-content:space-around; width:100%;">
+                <div style="text-align:center;">
+                    <div style="font-size:0.6rem; margin-bottom:5px">HÉROE</div>
+                    <div class="preview-box" style="background-image: url('heroe.png');"></div>
+                </div>
+                <div style="text-align:center;">
+                    <div style="font-size:0.6rem; margin-bottom:5px">VILLANO</div>
+                    <div class="preview-box" style="background-image: url('villano.png');"></div>
+                </div>
             </div>
-
-            <div style="font-size:0.7rem; margin:15px 0 5px;">2. TU EDAD</div>
+            <div style="font-size:0.7rem; margin:15px 0 5px;">TU EDAD</div>
             <input type="number" id="age-input" value="8" min="4" max="15">
         </div>
-
-        <button onclick="startGame()">¡EMPEZAR!</button>
-        <p style="font-size: 0.5rem; margin-top: 10px; color: #ddd;">El Rincón de Aprender</p>
+        <p style="font-size:0.6rem; color:#aaa;">Asegúrate que las imágenes se llamen<br>heroe.png y villano.png</p>
+        <button onclick="startGame()">¡JUGAR YA!</button>
     </div>
 
     <div id="game-container">
@@ -99,12 +110,10 @@
             <span>VIDAS <span id="lives">3</span></span>
             <span>PTS <span id="pts">0</span></span>
         </div>
-        
         <div id="question-zone">
             <div class="math-box" id="q-text">?</div>
             <div class="blocks-container" id="ans-box"></div>
         </div>
-
         <div id="hero-visual"></div>
         <div id="enemy"></div>
         <div class="ground"></div>
@@ -112,40 +121,34 @@
 
     <div id="youtube-gate" class="screen flex-col hidden">
         <h2 style="color:yellow; font-size:1rem;">¡TE QUEDASTE SIN VIDAS!</h2>
-        <p style="font-size:0.7rem;">Mira el video completo para revivir.</p>
+        <p style="font-size:0.7rem;">Ve el video para revivir.</p>
         
-        <div class="video-wrapper">
-            <iframe id="yt-player" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-        </div>
+        <a id="yt-link" href="#" target="_blank" class="yt-btn" onclick="startReviveTimer()">
+            📺 IR AL VIDEO EN YOUTUBE
+        </a>
 
-        <p id="timer-txt" style="font-size:0.6rem; color:#ccc;">Cargando...</p>
+        <p id="timer-txt" style="font-size:0.6rem; color:#ccc;">Toca el botón rojo...</p>
         <button id="btn-revive" disabled onclick="revive()">VOLVER AL JUEGO</button>
     </div>
 
 <script>
-    // --- VIDEO CONFIGURADO: Aprende las Tablas ---
-    const VIDEO_ID = "YFtEaVw5k1A"; 
+    // --- CONFIGURACIÓN ---
+    const YT_URL = "https://www.youtube.com/watch?v=YFtEaVw5k1A";
 
-    let heroColor = "#D32F2F";
-    let age = 8, lvl = 1, score = 0, lives = 3;
-    let isAnswering = false, correctAns = 0;
-    
-    // Elementos
+    let age=8, lvl=1, score=0, lives=3, correctAns=0, isAnswering=false;
     const heroEl = document.getElementById('hero-visual');
     const enemyEl = document.getElementById('enemy');
     const qZone = document.getElementById('question-zone');
 
-    function setColor(c) {
-        heroColor = c;
-        document.getElementById('p-hat').setAttribute('fill', c);
-        document.getElementById('p-shirt').setAttribute('fill', c);
+    window.onload = function() {
+        document.getElementById('yt-link').href = YT_URL;
     }
 
     function startGame() {
         age = parseInt(document.getElementById('age-input').value) || 8;
         document.getElementById('start-screen').classList.add('hidden');
         document.getElementById('game-container').style.display = 'block';
-        renderHero();
+        
         resetStats();
         gameLoop();
     }
@@ -157,11 +160,6 @@
         document.getElementById('pts').innerText = score;
     }
 
-    function renderHero() {
-        heroEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="100%" height="100%"><path fill="${heroColor}" d="M3 0h11v4H3z"/><path fill="#FFCC80" d="M2 3h10v5H2z"/><path fill="${heroColor}" d="M1 8h14v8H1z"/><path fill="#1976D2" d="M4 8h2v8H4zM10 8h2v8h-2zM0 6h4v3H0zM12 6h4v3h-4z"/></svg>`;
-    }
-
-    // --- GAME LOOP ---
     function gameLoop() {
         heroEl.className = 'hero-run';
         enemyEl.style.transition = 'none';
@@ -171,7 +169,7 @@
 
         setTimeout(() => {
             enemyEl.style.transition = 'right 1.5s linear';
-            enemyEl.style.right = 'calc(80% - 40px)';
+            enemyEl.style.right = 'calc(80% - 50px)';
             setTimeout(() => {
                 heroEl.className = ''; 
                 askQuestion();
@@ -179,26 +177,20 @@
         }, 500);
     }
 
-    // --- MATEMÁTICAS ---
     function askQuestion() {
-        let a, b, sign, res;
-        let limit = 10 + lvl; 
-
+        let a, b, sign, res, limit = 10 + lvl;
         if(age < 8) {
-            let ops = ['+','-','x'];
-            sign = ops[Math.floor(Math.random()*3)];
+            let ops = ['+','-','x']; sign=ops[Math.floor(Math.random()*3)];
             if(sign==='+'){ a=r(limit); b=r(limit); res=a+b; }
             else if(sign==='-'){ a=r(limit)+5; b=r(a); res=a-b; }
             else { a=r(5); b=r(5); res=a*b; }
         } else {
-            let ops = ['+','-','x','÷'];
-            sign = ops[Math.floor(Math.random()*4)];
+            let ops = ['+','-','x','÷']; sign=ops[Math.floor(Math.random()*4)];
             if(sign==='+'){ a=r(limit*2); b=r(limit*2); res=a+b; }
             else if(sign==='-'){ a=r(limit*2); b=r(a); res=a-b; }
             else if(sign==='x'){ a=r(10); b=r(10); res=a*b; }
             else { b=r(9)+1; res=r(9)+1; a=b*res; }
         }
-
         correctAns = res;
         document.getElementById('q-text').innerText = `${a} ${sign} ${b} = ?`;
         
@@ -208,9 +200,8 @@
             if(fake!==res && fake>=0 && !opts.includes(fake)) opts.push(fake);
         }
         opts.sort(()=>Math.random()-0.5);
-
-        let html = '';
-        opts.forEach(o => html+=`<div class="block" onclick="check(${o})">${o}</div>`);
+        
+        let html=''; opts.forEach(o => html+=`<div class="block" onclick="check(${o})">${o}</div>`);
         document.getElementById('ans-box').innerHTML = html;
         qZone.style.opacity = 1; isAnswering = true;
     }
@@ -218,51 +209,37 @@
     function r(n){ return Math.floor(Math.random()*n)+1; }
 
     function check(val) {
-        if(!isAnswering) return;
-        isAnswering = false; qZone.style.opacity = 0;
-
+        if(!isAnswering) return; isAnswering=false; qZone.style.opacity=0;
         if(val === correctAns) {
             heroEl.classList.add('jump');
-            setTimeout(() => {
-                enemyEl.classList.add('stomp');
-                score += 100; lvl++; updateHUD();
-            }, 300);
-            setTimeout(() => {
-                heroEl.classList.remove('jump'); enemyEl.classList.remove('stomp');
-                gameLoop();
-            }, 1000);
+            setTimeout(() => { enemyEl.classList.add('stomp'); score+=100; lvl++; updateHUD(); }, 300);
+            setTimeout(() => { heroEl.classList.remove('jump'); enemyEl.classList.remove('stomp'); gameLoop(); }, 1000);
         } else {
-            lives--; updateHUD();
-            heroEl.classList.add('shake');
+            lives--; updateHUD(); heroEl.classList.add('shake');
             setTimeout(() => {
                 heroEl.classList.remove('shake');
-                if(lives <= 0) showGate();
-                else {
-                    enemyEl.style.right = '-100px';
-                    setTimeout(gameLoop, 500);
-                }
+                if(lives <= 0) showGate(); else { enemyEl.style.right='-100px'; setTimeout(gameLoop, 500); }
             }, 1000);
         }
     }
 
-    // --- YOUTUBE GATE ---
+    // --- SISTEMA DE REVIVIR ---
     let timerInt;
     function showGate() {
         document.getElementById('game-container').style.display = 'none';
         document.getElementById('youtube-gate').classList.remove('hidden');
-        
-        // Cargar video
-        document.getElementById('yt-player').src = `https://www.youtube.com/embed/${VIDEO_ID}?autoplay=1`;
+    }
 
-        let time = 60; // 60 segundos obligatorios
+    function startReviveTimer() {
+        let time = 60;
         const btn = document.getElementById('btn-revive');
         const txt = document.getElementById('timer-txt');
-        btn.disabled = true; btn.style.opacity = 0.5;
-
+        txt.innerText = "¡Video abierto! Esperando...";
+        
         clearInterval(timerInt);
         timerInt = setInterval(() => {
             time--;
-            txt.innerText = `Espera ${time} segundos para revivir...`;
+            txt.innerText = `Regresa en ${time} segundos...`;
             if(time <= 0) {
                 clearInterval(timerInt);
                 btn.disabled = false; btn.style.opacity = 1;
@@ -274,15 +251,8 @@
     function revive() {
         document.getElementById('youtube-gate').classList.add('hidden');
         document.getElementById('game-container').style.display = 'block';
-        document.getElementById('yt-player').src = ""; // Parar video
-        
-        lives = 3; // Recuperar vidas
-        updateHUD();
-        // Reiniciar ronda
-        enemyEl.style.right = '-100px';
-        setTimeout(gameLoop, 500);
+        lives = 3; updateHUD(); enemyEl.style.right = '-100px'; setTimeout(gameLoop, 500);
     }
-
 </script>
 </body>
 </html>
