@@ -3,11 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Super Math Bros: PNG Edition</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Super Math Bros: Offline Edition</title>
+    
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    
     <style>
         :root { --sky: #5c94fc; --ground: #c84c0c; }
-        body { margin: 0; overflow: hidden; font-family: 'Press Start 2P', cursive; background: #000; touch-action: manipulation; user-select: none; }
+        /* Añadido 'Courier New' y monospace como respaldo offline */
+        body { margin: 0; overflow: hidden; font-family: 'Press Start 2P', 'Courier New', monospace; background: #000; touch-action: manipulation; user-select: none; }
 
         /* UTILIDADES */
         .hidden { display: none !important; }
@@ -16,22 +21,17 @@
         /* PANTALLAS */
         .screen { position: absolute; width: 100%; height: 100%; z-index: 100; text-align: center; }
         #start-screen { background: var(--sky); color: white; overflow-y: auto; padding: 20px 0;}
-        #youtube-gate { background: black; color: white; z-index: 200; }
+        #game-over-screen { background: black; color: red; z-index: 200; }
 
         h1 { font-size: 1.2rem; text-shadow: 3px 3px 0 #000; margin: 10px 0; line-height: 1.5; }
         
         /* CONTROLES */
         .setup-box { background: rgba(0,0,0,0.6); padding: 15px; border-radius: 15px; border: 3px solid white; margin: 10px; max-width: 90%; }
-        input[type="number"] { padding: 10px; font-family: 'Press Start 2P'; font-size: 1rem; width: 60px; text-align: center; margin: 10px; border: 3px solid white; background: black; color: yellow; }
+        input[type="number"] { padding: 10px; font-family: inherit; font-size: 1rem; width: 60px; text-align: center; margin: 10px; border: 3px solid white; background: black; color: yellow; }
         
-        button { background: #ffce00; border: 4px solid #fff; padding: 15px 25px; font-family: 'Press Start 2P'; font-size: 0.9rem; cursor: pointer; box-shadow: 0 5px 0 #b38f00; color: #d32f2f; margin-top: 15px; }
+        button { background: #ffce00; border: 4px solid #fff; padding: 15px 25px; font-family: inherit; font-size: 0.9rem; cursor: pointer; box-shadow: 0 5px 0 #b38f00; color: #d32f2f; margin-top: 15px; }
         button:active { transform: translateY(3px); box-shadow: none; }
-        button:disabled { background: #555; color: #888; box-shadow: none; cursor: wait; }
         
-        /* Botón YouTube */
-        .yt-btn { background: #FF0000; color: white; border: 4px solid white; padding: 15px; text-decoration: none; display: inline-block; margin: 10px; border-radius: 10px; font-size: 0.8rem; animation: pulse 1s infinite; }
-        @keyframes pulse { 0%{transform:scale(1);} 50%{transform:scale(1.05);} 100%{transform:scale(1);} }
-
         /* JUEGO */
         #game-container { display: none; width: 100%; height: 100vh; background-color: var(--sky); overflow: hidden; position: relative; }
         .hud { position: absolute; top: 10px; width: 100%; display: flex; justify-content: space-around; color: white; font-size: 0.7rem; text-shadow: 2px 2px 0 #000; z-index: 50; }
@@ -43,7 +43,6 @@
             width: 120px; height: 120px; 
             position: absolute; bottom: 15vh; left: 15%; z-index: 20; 
             transition: bottom 0.3s; 
-            /* AQUÍ BUSCA EL PNG */
             background-image: url('heroe.png');
             background-size: contain; background-repeat: no-repeat; background-position: center; 
         }
@@ -54,7 +53,6 @@
             position: absolute; bottom: 15vh; right: -100px; 
             width: 100px; height: 100px; z-index: 19; 
             transition: right 1.5s linear; 
-            /* AQUÍ BUSCA EL PNG */
             background-image: url('villano.png');
             background-size: contain; background-repeat: no-repeat; background-position: center;
         }
@@ -80,12 +78,22 @@
             background-size: contain; background-repeat: no-repeat; background-position: center;
             border: 2px solid white; background-color: rgba(255,255,255,0.1);
         }
+        
+        .highscore-display {
+            color: yellow;
+            font-size: 0.8rem;
+            margin-top: 10px;
+            text-shadow: 2px 2px black;
+        }
     </style>
 </head>
 <body>
 
     <div id="start-screen" class="screen flex-col active">
         <h1>SUPER MATH<br>BROS</h1>
+        
+        <div class="highscore-display">MEJOR RÉCORD: <span id="menu-highscore">0</span></div>
+
         <div class="setup-box">
             <div style="display:flex; justify-content:space-around; width:100%;">
                 <div style="text-align:center;">
@@ -100,8 +108,7 @@
             <div style="font-size:0.7rem; margin:15px 0 5px;">TU EDAD</div>
             <input type="number" id="age-input" value="8" min="4" max="15">
         </div>
-        <p style="font-size:0.6rem; color:#aaa;">Asegúrate que las imágenes se llamen<br>heroe.png y villano.png</p>
-        <button onclick="startGame()">¡JUGAR YA!</button>
+        <button onclick="startGame()">¡JUGAR!</button>
     </div>
 
     <div id="game-container">
@@ -119,29 +126,35 @@
         <div class="ground"></div>
     </div>
 
-    <div id="youtube-gate" class="screen flex-col hidden">
-        <h2 style="color:yellow; font-size:1rem;">¡TE QUEDASTE SIN VIDAS!</h2>
-        <p style="font-size:0.7rem;">Ve el video para revivir.</p>
+    <div id="game-over-screen" class="screen flex-col hidden">
+        <h1 style="color:red; font-size: 2rem;">GAME OVER</h1>
         
-        <a id="yt-link" href="#" target="_blank" class="yt-btn" onclick="startReviveTimer()">
-            📺 IR AL VIDEO EN YOUTUBE
-        </a>
+        <div class="setup-box" style="width: 80%;">
+            <p style="color:white; font-size:0.8rem;">PUNTUACIÓN FINAL</p>
+            <p style="color:yellow; font-size:1.5rem; margin: 10px 0;" id="final-score">0</p>
+            
+            <hr style="border-color: #333;">
+            
+            <p style="color:#aaa; font-size:0.6rem;">MEJOR RÉCORD</p>
+            <p style="color:white; font-size:1rem;" id="go-highscore">0</p>
+        </div>
 
-        <p id="timer-txt" style="font-size:0.6rem; color:#ccc;">Toca el botón rojo...</p>
-        <button id="btn-revive" disabled onclick="revive()">VOLVER AL JUEGO</button>
+        <button onclick="location.reload()">REINTENTAR</button>
     </div>
 
 <script>
-    // --- CONFIGURACIÓN ---
-    const YT_URL = "https://www.youtube.com/watch?v=YFtEaVw5k1A";
-
     let age=8, lvl=1, score=0, lives=3, correctAns=0, isAnswering=false;
+    // --- HIGH SCORE SYSTEM ---
+    // Recuperamos el récord guardado, si no existe es 0
+    let highScore = localStorage.getItem('smb_highscore') || 0;
+
     const heroEl = document.getElementById('hero-visual');
     const enemyEl = document.getElementById('enemy');
     const qZone = document.getElementById('question-zone');
 
     window.onload = function() {
-        document.getElementById('yt-link').href = YT_URL;
+        // Mostrar el highscore en el menú principal al cargar
+        document.getElementById('menu-highscore').innerText = highScore;
     }
 
     function startGame() {
@@ -153,7 +166,11 @@
         gameLoop();
     }
 
-    function resetStats() { lvl=1; score=0; lives=3; updateHUD(); }
+    function resetStats() { 
+        lvl=1; score=0; lives=3; 
+        updateHUD(); 
+    }
+    
     function updateHUD() {
         document.getElementById('lvl').innerText = lvl;
         document.getElementById('lives').innerText = lives;
@@ -169,7 +186,7 @@
 
         setTimeout(() => {
             enemyEl.style.transition = 'right 1.5s linear';
-            enemyEl.style.right = 'calc(80% - 50px)';
+            enemyEl.style.right = 'calc(80% - 50px)'; // Se acerca al héroe
             setTimeout(() => {
                 heroEl.className = ''; 
                 askQuestion();
@@ -179,6 +196,8 @@
 
     function askQuestion() {
         let a, b, sign, res, limit = 10 + lvl;
+        
+        // Dificultad basada en edad y nivel
         if(age < 8) {
             let ops = ['+','-','x']; sign=ops[Math.floor(Math.random()*3)];
             if(sign==='+'){ a=r(limit); b=r(limit); res=a+b; }
@@ -189,11 +208,13 @@
             if(sign==='+'){ a=r(limit*2); b=r(limit*2); res=a+b; }
             else if(sign==='-'){ a=r(limit*2); b=r(a); res=a-b; }
             else if(sign==='x'){ a=r(10); b=r(10); res=a*b; }
-            else { b=r(9)+1; res=r(9)+1; a=b*res; }
+            else { b=r(9)+1; res=r(9)+1; a=b*res; } // División exacta
         }
+        
         correctAns = res;
         document.getElementById('q-text').innerText = `${a} ${sign} ${b} = ?`;
         
+        // Generar respuestas falsas
         let opts = [res];
         while(opts.length<3) {
             let fake = res + Math.floor(Math.random()*10)-5;
@@ -210,48 +231,51 @@
 
     function check(val) {
         if(!isAnswering) return; isAnswering=false; qZone.style.opacity=0;
+        
         if(val === correctAns) {
+            // Acierto
             heroEl.classList.add('jump');
-            setTimeout(() => { enemyEl.classList.add('stomp'); score+=100; lvl++; updateHUD(); }, 300);
-            setTimeout(() => { heroEl.classList.remove('jump'); enemyEl.classList.remove('stomp'); gameLoop(); }, 1000);
+            setTimeout(() => { 
+                enemyEl.classList.add('stomp'); 
+                score+=100; lvl++; updateHUD(); 
+            }, 300);
+            setTimeout(() => { 
+                heroEl.classList.remove('jump'); 
+                enemyEl.classList.remove('stomp'); 
+                gameLoop(); 
+            }, 1000);
         } else {
+            // Error
             lives--; updateHUD(); heroEl.classList.add('shake');
             setTimeout(() => {
                 heroEl.classList.remove('shake');
-                if(lives <= 0) showGate(); else { enemyEl.style.right='-100px'; setTimeout(gameLoop, 500); }
+                if(lives <= 0) {
+                    gameOver(); // FIN DEL JUEGO
+                } else { 
+                    enemyEl.style.right='-100px'; 
+                    setTimeout(gameLoop, 500); 
+                }
             }, 1000);
         }
     }
 
-    // --- SISTEMA DE REVIVIR ---
-    let timerInt;
-    function showGate() {
+    function gameOver() {
         document.getElementById('game-container').style.display = 'none';
-        document.getElementById('youtube-gate').classList.remove('hidden');
-    }
+        document.getElementById('game-over-screen').classList.remove('hidden');
 
-    function startReviveTimer() {
-        let time = 60;
-        const btn = document.getElementById('btn-revive');
-        const txt = document.getElementById('timer-txt');
-        txt.innerText = "¡Video abierto! Esperando...";
+        // Lógica de High Score
+        if (score > highScore) {
+            highScore = score;
+            localStorage.setItem('smb_highscore', highScore); // Guardar en memoria del teléfono
+            // Pequeña animación visual si hay récord nuevo?
+            document.getElementById('go-highscore').style.color = "yellow";
+            document.getElementById('go-highscore').innerText = highScore + " (¡NUEVO!)";
+        } else {
+            document.getElementById('go-highscore').style.color = "white";
+            document.getElementById('go-highscore').innerText = highScore;
+        }
         
-        clearInterval(timerInt);
-        timerInt = setInterval(() => {
-            time--;
-            txt.innerText = `Regresa en ${time} segundos...`;
-            if(time <= 0) {
-                clearInterval(timerInt);
-                btn.disabled = false; btn.style.opacity = 1;
-                txt.innerText = "¡Listo! Puedes continuar.";
-            }
-        }, 1000);
-    }
-
-    function revive() {
-        document.getElementById('youtube-gate').classList.add('hidden');
-        document.getElementById('game-container').style.display = 'block';
-        lives = 3; updateHUD(); enemyEl.style.right = '-100px'; setTimeout(gameLoop, 500);
+        document.getElementById('final-score').innerText = score;
     }
 </script>
 </body>
